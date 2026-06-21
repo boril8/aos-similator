@@ -47,7 +47,7 @@ def _fmt_dmg(v: float) -> str:
 
 def _unit_in_scope(unit, scope: str) -> bool:
     """Return True if unit matches a friendly_buff scope string."""
-    if scope in ("friendly_units", "friendly_units_within_12"):
+    if scope in ("friendly_units", "friendly_units_within_12", "friendly_units_in_combat_range_of_general"):
         return True
     if scope == "friendly_non_hero_units":
         return "Hero" not in unit.keywords
@@ -160,6 +160,26 @@ def _collect_weapon_variants(unit, spearhead) -> dict:
                 for wi, w in enumerate(unit.weapons):
                     if w.type == "melee":
                         _append(wi, label, w, p_ok, wound=max(2, w.wound - bonus))
+
+        # Enhancements on the general that buff all friendly units
+        for enh in spearhead.enhancements:
+            effect = enh.get("effect", {})
+            if effect.get("type") != "friendly_buff":
+                continue
+            if not _unit_in_scope(unit, effect.get("scope", "")):
+                continue
+            modifier = effect.get("modifier", "")
+            label    = f"[yellow]({enh['name']})[/yellow]"
+            if modifier == "hit_bonus":
+                bonus = effect["value"]
+                for wi, w in enumerate(unit.weapons):
+                    if w.type == "melee":
+                        _append(wi, label, w, hit=max(2, w.hit - bonus))
+            elif modifier == "wound_bonus":
+                bonus = effect["value"]
+                for wi, w in enumerate(unit.weapons):
+                    if w.type == "melee":
+                        _append(wi, label, w, wound=max(2, w.wound - bonus))
 
     # ── Regiment abilities ────────────────────────────────────────────────────
     if "Hero" not in unit.keywords:

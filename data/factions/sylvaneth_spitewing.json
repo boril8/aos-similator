@@ -1,0 +1,345 @@
+{
+  "name": "Spitewing Flight",
+  "short_name": "Spitewing",
+  "faction": "Sylvaneth",
+  "faction_short": "sylvaneth",
+  "battle_traits": [
+    {
+      "name": "Song of the Hunt",
+      "description": "Gain 1 chord each time an enemy quarry is destroyed. 1 chord: +1 run/charge rolls for friendly units within 9\" of quarry. 2 chords: +1 hit rolls for friendly units' attacks within 9\" of quarry. 3+ chords: +1 wound rolls for friendly units' attacks within 9\" of quarry.",
+      "timing": "passive",
+      "effect": {
+        "type": "progressive_buff",
+        "chords": [
+          {
+            "required": 1,
+            "type": "movement_buff",
+            "modifier": "run_charge_bonus",
+            "value": 1,
+            "scope": "friendly_units_within_9_of_quarry"
+          },
+          {
+            "required": 2,
+            "type": "friendly_buff",
+            "modifier": "hit_bonus",
+            "value": 1,
+            "scope": "friendly_units_within_9_of_quarry"
+          },
+          {
+            "required": 3,
+            "type": "friendly_buff",
+            "modifier": "wound_bonus",
+            "value": 1,
+            "scope": "friendly_units_within_9_of_quarry"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Target of Vengeance",
+      "description": "If there is no enemy quarry on the battlefield, pick an enemy unit to be the quarry for the rest of the battle.",
+      "timing": "once_per_battle_round_start_of_battle_round",
+      "effect": {
+        "type": "mark_quarry",
+        "applies_to": "enemy_unit"
+      }
+    },
+    {
+      "name": "Airborne Cohesion",
+      "description": "Friendly units have a coherency range of 2\".",
+      "timing": "passive",
+      "effect": {
+        "type": "coherency_rule",
+        "coherency_range": 2,
+        "scope": "friendly_units"
+      }
+    }
+  ],
+  "regiment_abilities": [
+    {
+      "name": "Leaves on the Wind",
+      "description": "Pick a friendly unit in combat. It can immediately use the Retreat ability as if it were your movement phase and no mortal damage is inflicted on it.",
+      "timing": "reaction_any_combat_phase",
+      "effect": {
+        "type": "movement_buff",
+        "modifier": "free_retreat_no_mortal",
+        "scope": "friendly_unit_in_combat"
+      }
+    },
+    {
+      "name": "Lifebringers",
+      "description": "Heal (D3) each friendly unit.",
+      "timing": "once_per_turn_end_of_any_turn",
+      "effect": {
+        "type": "heal_all_friendly",
+        "heal": "D3"
+      }
+    }
+  ],
+  "enhancements": [
+    {
+      "name": "Zephyrkin",
+      "description": "If your general charged this turn, they can move up to 2D6\" after that Fight ability has been resolved. They cannot end that move in combat.",
+      "timing": "passive_reaction_fight",
+      "effect": {
+        "type": "movement_buff",
+        "modifier": "post_fight_move",
+        "value": "2D6",
+        "applies_to": "general",
+        "condition": "charged_this_turn"
+      }
+    },
+    {
+      "name": "Bold Spirit",
+      "description": "For the rest of the turn, add 1 to wound rolls for friendly units' combat attacks while they are within your general's combat range.",
+      "timing": "once_per_battle_any_hero_phase",
+      "effect": {
+        "type": "friendly_buff",
+        "modifier": "wound_bonus",
+        "value": 1,
+        "scope": "friendly_units_in_combat_range_of_general"
+      }
+    },
+    {
+      "name": "Cunning Pursuer",
+      "description": "While your general is in combat, add 1 to charge rolls for friendly units wholly within 12\" of them. Add 2 instead while your general is in combat with the quarry.",
+      "timing": "passive",
+      "effect": {
+        "type": "movement_buff",
+        "modifier": "charge_bonus",
+        "value": 1,
+        "value_vs_quarry": 2,
+        "scope": "friendly_units_within_12",
+        "condition": "general_in_combat"
+      }
+    },
+    {
+      "name": "Head of the Hunt",
+      "description": "Add 1 to the Rend characteristic of your general's melee weapons while the enemy quarry is within 9\" of and visible to them.",
+      "timing": "passive",
+      "effect": {
+        "type": "weapon_override",
+        "applies_to": "general",
+        "weapon": "Arch-Revenant's Glaive",
+        "modifier": "rend",
+        "value": 2,
+        "condition": "quarry_within_9_and_visible"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "Arch-Revenant",
+      "role": "general",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Infantry", "Fly", "Sylvaneth"],
+      "stats": {
+        "move": 12,
+        "health": 6,
+        "save": 4,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Arch-Revenant's Glaive",
+          "type": "melee",
+          "attacks": "5",
+          "hit": 3,
+          "wound": 4,
+          "rend": 1,
+          "damage": "2",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Heartwood Hunting Horn",
+          "description": "Pick a visible friendly unit wholly within 12\" of this unit. Until the start of your next turn, when determining which effects of Song of the Hunt apply to the target, count as having 1 additional chord.",
+          "timing": "your_hero_phase",
+          "effect": {
+            "type": "chord_bonus",
+            "value": 1,
+            "scope": "friendly_unit_within_12"
+          }
+        },
+        {
+          "name": "Song of the Hunt (2 chords)",
+          "description": "Add 1 to hit rolls for friendly units' attacks while they are within 9\" of the enemy quarry.",
+          "timing": "passive",
+          "effect": {
+            "type": "friendly_buff",
+            "modifier": "hit_bonus",
+            "value": 1,
+            "scope": "friendly_units",
+            "condition": "within_9_of_quarry_and_have_2_chords"
+          }
+        },
+        {
+          "name": "Song of the Hunt (3+ chords)",
+          "description": "Add 1 to wound rolls for friendly units' attacks while they are within 9\" of the enemy quarry.",
+          "timing": "passive",
+          "effect": {
+            "type": "friendly_buff",
+            "modifier": "wound_bonus",
+            "value": 1,
+            "scope": "friendly_units",
+            "condition": "within_9_of_quarry_and_have_3_chords"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gossamid Archers",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 5,
+      "keywords": ["Infantry", "Fly", "Sylvaneth"],
+      "stats": {
+        "move": 12,
+        "health": 2,
+        "save": 5,
+        "ward": null,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Gossamid Bow",
+          "type": "ranged",
+          "range": 12,
+          "attacks": "2",
+          "hit": 3,
+          "wound": 4,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Shoot in Combat"]
+        },
+        {
+          "name": "Cruel Talons",
+          "type": "melee",
+          "attacks": "1",
+          "hit": 3,
+          "wound": 4,
+          "rend": 0,
+          "damage": "1",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Zephyrspites",
+          "description": "After that Shoot ability has been resolved, this unit can move up to D6\". It cannot move into combat during any part of that move.",
+          "timing": "reaction_shoot",
+          "effect": {
+            "type": "movement_buff",
+            "modifier": "post_shoot_move",
+            "value": "D6"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Spiterider Lancers",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 3,
+      "keywords": ["Cavalry", "Fly", "Sylvaneth"],
+      "stats": {
+        "move": 12,
+        "health": 5,
+        "save": 4,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Spiterider Lance",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 3,
+          "wound": 4,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Charge (+1 Damage)"]
+        },
+        {
+          "name": "Dragonspite's Mandibles",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": ["Companion"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Spiterider Charge",
+          "description": "If this unit charged this phase, pick a visible enemy unit within 1\". Roll a D3 (+1 if the target is the enemy quarry). On a 2+, inflict mortal damage equal to the roll on the target.",
+          "timing": "any_charge_phase",
+          "effect": {
+            "type": "mortal_on_charge",
+            "roll_required": 2,
+            "damage": "D3",
+            "bonus_vs_quarry": 1,
+            "applies_to": "enemy_unit_within_1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Revenant Seekers",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 3,
+      "keywords": ["Cavalry", "Fly", "Sylvaneth"],
+      "stats": {
+        "move": 12,
+        "health": 5,
+        "save": 4,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Seeker's Sickle",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 3,
+          "wound": 4,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Crit (Mortal)"]
+        },
+        {
+          "name": "Dragonspite's Mandibles",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": ["Companion"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Deafening Drone",
+          "description": "If this unit did not charge this turn, pick an enemy unit in combat with it. Roll a dice. If the roll exceeds the target's Control characteristic, subtract 1 from the Attacks characteristic of the target's melee weapons for the rest of the turn.",
+          "timing": "any_combat_phase",
+          "effect": {
+            "type": "enemy_debuff",
+            "modifier": "attacks_penalty",
+            "value": -1,
+            "target_weapons": "melee",
+            "roll_exceeds": "target_control",
+            "condition": "did_not_charge_this_turn",
+            "applies_to": "enemy_unit_in_combat"
+          }
+        }
+      ]
+    }
+  ]
+}
