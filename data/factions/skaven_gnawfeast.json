@@ -1,0 +1,363 @@
+{
+  "name": "Gnawfeast Clawpack",
+  "short_name": "Gnawfeast",
+  "faction": "Skaven",
+  "faction_short": "skaven",
+  "battle_traits": [
+    {
+      "name": "The Lurking Vermintide",
+      "description": "Pick a friendly unit that has not been deployed to be the target. The target unit is set up in reserve in the tunnels below. Units in the tunnels below that have not used the 'Gnawhole Ambush' ability by the end of the third battle round are destroyed.",
+      "timing": "once_per_battle_deployment_phase",
+      "declare": "Pick a friendly unit that has not been deployed to be the target.",
+      "keywords": ["Deploy"],
+      "sub_abilities": [
+        {
+          "name": "Gnawhole Ambush",
+          "description": "Set up that unit wholly within 6\" of a corner of the battlefield and more than 9\" from all enemy units.",
+          "timing": "your_movement_phase",
+          "declare": "Pick a friendly unit that is in the tunnels below to use this ability.",
+          "keywords": ["Core"],
+          "effect": {
+            "type": "deployment",
+            "condition": "unit_in_tunnels_below",
+            "setup": "wholly_within_6_of_corner_more_than_9_from_enemies"
+          }
+        }
+      ]
+    }
+  ],
+  "regiment_abilities": [
+    {
+      "name": "Warpstone-Laced Bullets",
+      "description": "That weapon has Crit (Mortal) this phase.",
+      "timing": "once_per_battle_your_shooting_phase",
+      "declare": "Pick a ranged weapon a friendly unit is armed with.",
+      "effect": {
+        "type": "weapon_buff",
+        "modifier": "add_ability",
+        "ability": "Crit (Mortal)",
+        "target_weapon_type": "ranged",
+        "duration": "this_phase"
+      }
+    },
+    {
+      "name": "Too Quick to Hit-Hit",
+      "description": "No mortal damage is inflicted on friendly units when they use Retreat abilities.",
+      "timing": "passive",
+      "effect": {
+        "type": "friendly_buff",
+        "modifier": "no_mortal_damage_on_retreat",
+        "scope": "friendly_units"
+      }
+    }
+  ],
+  "enhancements": [
+    {
+      "name": "Lead the Seething Horde",
+      "description": "Instead of using the set-up instructions in the 'Call for Reinforcements' ability, the replacement unit can be set up wholly within 13\" of this unit and not in combat.",
+      "timing": "reaction_call_for_reinforcements",
+      "effect": {
+        "type": "deployment_override",
+        "modifier": "set_up_within_13_of_general_not_in_combat",
+        "applies_to": "replacement_unit"
+      }
+    },
+    {
+      "name": "Skryre Connections",
+      "description": "Your general's Ratling Pistol has an Attacks characteristic of 2D6 instead of D6.",
+      "timing": "passive",
+      "effect": {
+        "type": "weapon_override",
+        "applies_to": "general",
+        "weapon": "Ratling Pistol",
+        "modifier": "attacks",
+        "value": "2D6"
+      }
+    },
+    {
+      "name": "Warpstone Charm",
+      "description": "Subtract 1 from save rolls for enemy units in combat with your general.",
+      "timing": "passive",
+      "effect": {
+        "type": "enemy_debuff",
+        "modifier": "save_penalty",
+        "value": -1,
+        "target": "enemy_units_in_combat_with_general"
+      }
+    },
+    {
+      "name": "Cloak of Stitched Victories",
+      "description": "Your general has Ward (5+).",
+      "timing": "passive",
+      "effect": {
+        "type": "self_buff",
+        "modifier": "ward",
+        "value": 5,
+        "applies_to": "general"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "Clawlord on Gnaw-beast",
+      "role": "general",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Cavalry"],
+      "stats": {
+        "move": 9,
+        "health": 7,
+        "save": 4,
+        "ward": 6,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Ratling Pistol",
+          "type": "ranged",
+          "range": 10,
+          "attacks": "D6",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Crit (Auto-wound)", "Shoot in Combat"]
+        },
+        {
+          "name": "Warpforged Halberd",
+          "type": "melee",
+          "attacks": "5",
+          "hit": 3,
+          "wound": 4,
+          "rend": 1,
+          "damage": "2",
+          "abilities": []
+        },
+        {
+          "name": "Gnaw-beast's Chisel Fangs",
+          "type": "melee",
+          "attacks": "4",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": ["Companion"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Cornered Rat",
+          "description": "While this unit is damaged, add 3 to the Attacks characteristic of its Warpforged Halberd.",
+          "timing": "passive",
+          "effect": {
+            "type": "conditional_buff",
+            "modifier": "attacks_bonus",
+            "value": 3,
+            "weapon": "Warpforged Halberd",
+            "condition": "this_unit_is_damaged"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Grey Seer",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Wizard", "Infantry"],
+      "stats": {
+        "move": 6,
+        "health": 5,
+        "save": 6,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Warpstone Staff",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 4,
+          "wound": 4,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Will of the Horned Rat",
+          "description": "On a 3+, add the roll to the target's control score until the start of your next turn.",
+          "timing": "your_hero_phase",
+          "declare": "Pick a friendly unit wholly within 13\" of this unit to be the target, then roll a dice.",
+          "effect": {
+            "type": "friendly_buff",
+            "modifier": "control_bonus",
+            "value": "dice_roll",
+            "roll_required": 3,
+            "scope": "friendly_unit_within_13",
+            "duration": "until_start_of_next_turn"
+          }
+        },
+        {
+          "name": "Wither",
+          "description": "On a 6+, inflict D3 mortal damage on the target.",
+          "timing": "your_hero_phase",
+          "declare": "Pick a visible enemy unit within 13\" of this unit to be the target, then make a casting roll of 2D6.",
+          "effect": {
+            "type": "mortal_damage",
+            "damage": "D3",
+            "cast_roll": "2D6",
+            "cast_required": 6,
+            "target": "enemy_unit_within_13"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Warlock Engineer",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Infantry"],
+      "stats": {
+        "move": 6,
+        "health": 5,
+        "save": 5,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Warplock Musket",
+          "type": "ranged",
+          "range": 24,
+          "attacks": "2",
+          "hit": 3,
+          "wound": 3,
+          "rend": 2,
+          "damage": "D3",
+          "abilities": ["Crit (Auto-wound)"]
+        },
+        {
+          "name": "Warpforged Dagger",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 4,
+          "wound": 4,
+          "rend": 0,
+          "damage": "2",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "More-More Warp Energy!",
+          "description": "Roll a dice. On a 2+, set the Damage characteristic of its Warplock Musket to 3 this phase. On a 1, inflict D3 mortal damage on this unit.",
+          "timing": "reaction_shoot_ability_no_move_this_turn",
+          "effect": {
+            "type": "weapon_override_with_risk",
+            "weapon": "Warplock Musket",
+            "modifier": "damage",
+            "value_on_success": "3",
+            "roll_required": 2,
+            "on_fail": { "type": "self_mortal_damage", "damage": "D3" },
+            "duration": "this_phase"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clanrats",
+      "role": "unit",
+      "unit_count": 2,
+      "model_count": 10,
+      "keywords": ["Infantry", "Reinforcements"],
+      "stats": {
+        "move": 6,
+        "health": 1,
+        "save": 5,
+        "ward": null,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Rusty Blade",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 4,
+          "wound": 5,
+          "rend": 0,
+          "damage": "1",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Seething Swarm",
+          "description": "You can return D3 slain models to this unit.",
+          "timing": "end_of_any_turn",
+          "effect": {
+            "type": "return_models",
+            "value": "D3",
+            "applies_to": "this_unit"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rat Ogors",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 3,
+      "loadout_note": "2 models armed with Claws, Blades and Fangs; 1 model armed with Warpfire Gun and Claws, Blades and Fangs.",
+      "keywords": ["Infantry"],
+      "stats": {
+        "move": 6,
+        "health": 4,
+        "save": 5,
+        "ward": null,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Warpfire Gun",
+          "type": "ranged",
+          "range": 10,
+          "attacks": "2D6",
+          "hit": 2,
+          "wound": 4,
+          "rend": 2,
+          "damage": "1",
+          "abilities": ["Shoot in Combat"],
+          "models_equipped": 1
+        },
+        {
+          "name": "Claws, Blades and Fangs",
+          "type": "melee",
+          "attacks": "5",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Unleashed Warp-Fury",
+          "description": "Inflict D3 mortal damage on this unit. Then, add 1 to the Attacks characteristic of its melee weapons this phase.",
+          "timing": "any_combat_phase_once_per_battle",
+          "effect": {
+            "type": "self_damage_then_buff",
+            "self_mortal_damage": "D3",
+            "modifier": "attacks_bonus",
+            "value": 1,
+            "target_weapons": "melee",
+            "duration": "this_phase"
+          }
+        }
+      ]
+    }
+  ]
+}

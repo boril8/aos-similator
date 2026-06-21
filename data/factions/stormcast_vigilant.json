@@ -1,0 +1,332 @@
+{
+  "name": "Vigilant Brotherhood",
+  "short_name": "Vigilant",
+  "faction": "Stormcast Eternals",
+  "faction_short": "stormcast",
+  "battle_traits": [
+    {
+      "name": "Shield of Azyr",
+      "description": "Until the start of your next turn, the target has Ward (5+).",
+      "timing": "once_per_battle_your_hero_phase",
+      "declare": "Pick a friendly unit to be the target.",
+      "effect": {
+        "type": "friendly_buff",
+        "modifier": "ward",
+        "value": 5,
+        "scope": "friendly_unit",
+        "duration": "until_start_of_next_turn"
+      }
+    },
+    {
+      "name": "Storm Charge",
+      "description": "Pick a friendly unit that is not in combat. That unit can use Charge abilities this turn even if it used a Run ability this turn.",
+      "timing": "once_per_battle_your_charge_phase",
+      "effect": {
+        "type": "movement_buff",
+        "modifier": "charge_after_run",
+        "scope": "friendly_unit_not_in_combat"
+      }
+    }
+  ],
+  "regiment_abilities": [
+    {
+      "name": "Strike Where Needed",
+      "description": "Pick a friendly unit in combat to be the target. It can make a Retreat move. It does not take any mortal damage for doing so and can still use Charge abilities this turn.",
+      "timing": "once_per_battle_reaction_retreat",
+      "effect": {
+        "type": "movement_buff",
+        "modifier": "free_retreat_then_charge",
+        "scope": "friendly_unit_in_combat"
+      }
+    },
+    {
+      "name": "Blaze of Glory",
+      "description": "Each time a model in the target is slain, roll a dice. On a 4+, inflict 1 mortal damage on an enemy unit in combat with the target.",
+      "timing": "once_per_battle_any_combat_phase",
+      "declare": "Pick a friendly unit in combat to be the target.",
+      "effect": {
+        "type": "mortal_on_model_death",
+        "roll_required": 4,
+        "damage": 1,
+        "applies_to": "enemy_unit_in_combat_with_target"
+      }
+    }
+  ],
+  "enhancements": [
+    {
+      "name": "Hallowed Scrolls",
+      "description": "Your general has Ward (5+).",
+      "timing": "passive",
+      "effect": {
+        "type": "self_buff",
+        "modifier": "ward",
+        "value": 5,
+        "applies_to": "general"
+      }
+    },
+    {
+      "name": "Morrda's Talon",
+      "description": "Your general's Hallowed Greataxe has Crit (Mortal).",
+      "timing": "passive",
+      "effect": {
+        "type": "weapon_override",
+        "applies_to": "general",
+        "weapon": "Hallowed Greataxe",
+        "modifier": "add_ability",
+        "value": "Crit (Mortal)"
+      }
+    },
+    {
+      "name": "Quicksilver Draught",
+      "description": "Your general has Strike-first this phase.",
+      "timing": "once_per_battle_any_combat_phase",
+      "effect": {
+        "type": "self_buff",
+        "modifier": "strike_first",
+        "applies_to": "general",
+        "duration": "this_phase"
+      }
+    },
+    {
+      "name": "Null Pendant",
+      "description": "Roll a dice for each enemy unit contesting the same objective as your general. For each roll, subtract that many from that unit's control score until the start of your next turn.",
+      "timing": "once_per_battle_end_of_any_turn",
+      "effect": {
+        "type": "enemy_debuff",
+        "modifier": "control_penalty",
+        "condition": "enemy_contesting_same_objective_as_general"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "Lord-Vigilant on Gryph-stalker",
+      "role": "general",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Cavalry", "Stormcast"],
+      "stats": {
+        "move": 12,
+        "health": 8,
+        "save": 3,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Hallowed Greataxe",
+          "type": "melee",
+          "attacks": "5",
+          "hit": 3,
+          "wound": 3,
+          "rend": 2,
+          "damage": "2",
+          "abilities": []
+        },
+        {
+          "name": "Gryph-stalker's Beak and Talons",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": ["Companion"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Deliver Judgement",
+          "description": "Pick a friendly non-Hero unit wholly within 12\" of this unit. That unit can use 2 Fight abilities this turn, but has Strike-last after using the first.",
+          "timing": "once_per_battle_any_combat_phase",
+          "effect": {
+            "type": "friendly_buff",
+            "modifier": "fight_twice",
+            "scope": "friendly_non_hero_unit_within_12"
+          }
+        },
+        {
+          "name": "Plan the Attack",
+          "description": "Pick an objective. For the rest of the turn, add 1 to hit rolls for combat attacks made by friendly units that target enemy units contesting that objective.",
+          "timing": "your_hero_phase",
+          "effect": {
+            "type": "friendly_buff",
+            "modifier": "hit_bonus",
+            "value": 1,
+            "scope": "friendly_units",
+            "condition": "target_contesting_chosen_objective"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lord-Veritant",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Priest", "Infantry", "Stormcast"],
+      "stats": {
+        "move": 5,
+        "health": 6,
+        "save": 3,
+        "ward": null,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Staff of Abjuration",
+          "type": "melee",
+          "attacks": "1",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "3",
+          "abilities": []
+        },
+        {
+          "name": "Judgement Blade",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": ["Anti-Wizard (+1 Rend)", "Anti-Priest (+1 Rend)"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Sense Unholy Sorcery",
+          "description": "This unit has Ward (5+) while a Gryph-crow token is on the battlefield. When this unit's ward save roll is an unmodified 1, remove the Gryph-crow token.",
+          "timing": "passive",
+          "effect": {
+            "type": "conditional_ward",
+            "ward": 5,
+            "condition": "gryph_crow_token_on_battlefield",
+            "applies_to": "this_unit"
+          }
+        },
+        {
+          "name": "Cleansing Fires",
+          "description": "Chanting roll of 3+: roll a dice for each model in the target. For each 5+, inflict 1 mortal damage on the target.",
+          "timing": "your_hero_phase",
+          "effect": {
+            "type": "priest_chant",
+            "chanting_roll": 3,
+            "mortal_roll_required": 5,
+            "mortal_damage": 1,
+            "applies_to": "enemy_unit_within_12"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prosecutors",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 3,
+      "keywords": ["Infantry", "Fly", "Reinforcements", "Stormcast"],
+      "stats": {
+        "move": 12,
+        "health": 2,
+        "save": 3,
+        "ward": null,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Stormcall Javelin",
+          "type": "ranged",
+          "range": 10,
+          "attacks": "1",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "D3",
+          "abilities": []
+        },
+        {
+          "name": "Stormcall Javelin",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "1",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Heralds of Righteousness",
+          "description": "Add 1 extra dice to charge rolls for this unit (roll 3 dice and discard the lowest).",
+          "timing": "passive",
+          "effect": {
+            "type": "movement_buff",
+            "modifier": "charge_bonus_die"
+          }
+        },
+        {
+          "name": "Skirmishers",
+          "description": "Models in this unit can be within 2\" of each other for the purposes of coherency.",
+          "timing": "passive",
+          "effect": {
+            "type": "coherency_rule",
+            "coherency_range": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Liberators",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 5,
+      "keywords": ["Infantry", "Reinforcements", "Stormcast"],
+      "stats": {
+        "move": 5,
+        "health": 2,
+        "save": 3,
+        "ward": null,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Warhammer",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Crit (Mortal)"],
+          "models_equipped": 4
+        },
+        {
+          "name": "Grandhammer",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": ["Crit (Mortal)"],
+          "models_equipped": 1
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Stalwart Defenders",
+          "description": "Add 3 to the control score of this unit while it is contesting an objective in your territory.",
+          "timing": "passive",
+          "effect": {
+            "type": "control_buff",
+            "modifier": "control_bonus",
+            "value": 3,
+            "condition": "contesting_objective_in_own_territory"
+          }
+        }
+      ]
+    }
+  ]
+}

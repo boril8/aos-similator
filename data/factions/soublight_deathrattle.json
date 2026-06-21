@@ -1,0 +1,288 @@
+{
+  "name": "Deathrattle Tomb Host",
+  "short_name": "Deathrattle",
+  "faction": "Soulblight Gravelords",
+  "faction_short": "soulblight",
+  "battle_traits": [
+    {
+      "name": "The Unquiet Dead",
+      "description": "One of your Deathrattle Skeletons units is not set up during the deployment phase. Instead, from the third battle round onwards, it can use the following ability.",
+      "timing": "passive",
+      "sub_abilities": [
+        {
+          "name": "The Rising Dead",
+          "description": "Set up this unit anywhere on the battlefield wholly within 3\" of a battlefield edge and more than 6\" from all enemy units.",
+          "timing": "once_per_battle_army_movement_phase",
+          "effect": {
+            "type": "deployment",
+            "applies_to": "Deathrattle Skeletons",
+            "condition": "from_round_3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Aura of Antiquity",
+      "description": "Roll a dice. On a 3+, subtract 1 from the Rend characteristic of the target's melee weapons until the start of your next turn.",
+      "timing": "once_per_turn_army_any_combat_phase",
+      "declare": "Pick an enemy unit in combat with any friendly units to be the target.",
+      "effect": {
+        "type": "enemy_debuff",
+        "modifier": "rend_penalty",
+        "value": -1,
+        "target_weapons": "melee",
+        "roll_required": 3,
+        "duration": "until_start_of_next_turn"
+      }
+    }
+  ],
+  "regiment_abilities": [
+    {
+      "name": "Overwhelming Hordes",
+      "description": "Add 1 to wound rolls for combat attacks made by friendly non-Hero units that target a unit that has fewer models than the attacking unit.",
+      "timing": "passive",
+      "effect": {
+        "type": "friendly_buff",
+        "modifier": "wound_bonus",
+        "value": 1,
+        "scope": "friendly_non_hero_units",
+        "condition": "target_has_fewer_models"
+      }
+    },
+    {
+      "name": "Deathmarch",
+      "description": "For the rest of the turn, add 1\" to the target's Move characteristic and add 3 to its control score.",
+      "timing": "once_per_turn_army_hero_phase",
+      "declare": "Pick a friendly non-Hero unit that is not in combat to be the target.",
+      "effect": {
+        "type": "friendly_buff",
+        "modifiers": [
+          { "modifier": "move_bonus", "value": 1 },
+          { "modifier": "control_bonus", "value": 3 }
+        ],
+        "scope": "friendly_non_hero_unit",
+        "condition": "not_in_combat",
+        "duration": "rest_of_turn"
+      }
+    }
+  ],
+  "enhancements": [
+    {
+      "name": "Shyishan Blade",
+      "description": "The Rend characteristic of your general's Baleful Tomb Blade is 2.",
+      "timing": "passive",
+      "effect": {
+        "type": "weapon_override",
+        "applies_to": "general",
+        "weapon": "Baleful Tomb Blade",
+        "modifier": "rend",
+        "value": 2
+      }
+    },
+    {
+      "name": "Stolen Animus",
+      "description": "Each time your general scores a critical hit, Heal (2) your general after the Attack ability has been resolved.",
+      "timing": "passive",
+      "effect": {
+        "type": "self_heal",
+        "trigger": "critical_hit",
+        "heal": 2,
+        "applies_to": "general"
+      }
+    },
+    {
+      "name": "Propelled by Hate",
+      "description": "You can re-roll charge rolls for the target for the rest of the turn.",
+      "timing": "your_charge_phase",
+      "declare": "Pick another friendly unit wholly within 12\" of your general to be the target.",
+      "effect": {
+        "type": "friendly_buff",
+        "modifier": "reroll_charge",
+        "scope": "friendly_unit_within_12_of_general",
+        "duration": "rest_of_turn"
+      }
+    },
+    {
+      "name": "Soul-Drain Pendant",
+      "description": "Roll a dice. On a 2+, the target has Strike-last for the rest of the turn.",
+      "timing": "once_per_battle_any_combat_phase",
+      "declare": "Pick an enemy unit in combat with your general to be the target.",
+      "effect": {
+        "type": "enemy_debuff",
+        "modifier": "strike_last",
+        "roll_required": 2,
+        "target": "enemy_unit_in_combat_with_general",
+        "duration": "rest_of_turn"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "Wight King",
+      "role": "general",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Infantry", "Deathrattle"],
+      "stats": {
+        "move": 4,
+        "health": 5,
+        "save": 3,
+        "ward": 6,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Baleful Tomb Blade",
+          "type": "melee",
+          "attacks": "5",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": ["Crit (Mortal)"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "King of Shambling Bones",
+          "description": "Roll a dice. On a 2+, add 1 to hit rolls for combat attacks made by the target for the rest of the turn.",
+          "timing": "your_hero_phase",
+          "declare": "Pick a friendly Deathrattle unit wholly within 12\" of this unit to be the target.",
+          "effect": {
+            "type": "friendly_buff",
+            "modifier": "hit_bonus",
+            "value": 1,
+            "scope": "friendly_deathrattle_unit_within_12",
+            "roll_required": 2,
+            "duration": "rest_of_turn"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Barrow Guard",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 10,
+      "keywords": ["Infantry", "Deathrattle"],
+      "stats": {
+        "move": 4,
+        "health": 1,
+        "save": 4,
+        "ward": 6,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Wight Blade",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Crit (Mortal)"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Guardians of the King",
+          "description": "While your general is within this unit's combat range, both this unit and your general have Ward (5+).",
+          "timing": "passive",
+          "effect": {
+            "type": "conditional_ward",
+            "ward": 5,
+            "applies_to": ["this_unit", "general"],
+            "condition": "general_within_combat_range"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Barrow Knights",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 5,
+      "keywords": ["Cavalry", "Deathrattle"],
+      "stats": {
+        "move": 10,
+        "health": 3,
+        "save": 4,
+        "ward": 6,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Barrow Lance",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Crit (Mortal)", "Charge (+1 Damage)"]
+        },
+        {
+          "name": "Skeletal Steed's Hooves and Teeth",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 5,
+          "wound": 3,
+          "rend": 0,
+          "damage": "1",
+          "abilities": ["Companion"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Cursed to Rise Once More",
+          "description": "You can return 1 slain model to this unit.",
+          "timing": "end_of_any_turn",
+          "effect": {
+            "type": "return_models",
+            "value": "1",
+            "applies_to": "this_unit"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deathrattle Skeletons",
+      "role": "unit",
+      "unit_count": 2,
+      "model_count": 10,
+      "keywords": ["Infantry", "Deathrattle"],
+      "stats": {
+        "move": 4,
+        "health": 1,
+        "save": 5,
+        "ward": 6,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Ancient Weapon",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 4,
+          "wound": 4,
+          "rend": 0,
+          "damage": "1",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Skeleton Legion",
+          "description": "You can return D3 slain models to this unit.",
+          "timing": "end_of_any_turn",
+          "effect": {
+            "type": "return_models",
+            "value": "D3",
+            "applies_to": "this_unit"
+          }
+        }
+      ]
+    }
+  ]
+}

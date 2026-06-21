@@ -1,0 +1,284 @@
+{
+  "name": "Bloodcrave Hunt",
+  "short_name": "Bloodcrave",
+  "faction": "Soulblight Gravelords",
+  "faction_short": "soulblight",
+  "battle_traits": [
+    {
+      "name": "Death's Descent",
+      "description": "Your Vargheists unit is not set up during the deployment phase. Instead, from the third battle round onwards, it can use the following ability.",
+      "timing": "passive",
+      "sub_abilities": [
+        {
+          "name": "Swoop Down",
+          "description": "Set up this unit anywhere on the battlefield more than 6\" from all enemy units.",
+          "timing": "your_movement_phase",
+          "keywords": ["Core"],
+          "effect": {
+            "type": "deployment",
+            "applies_to": "Vargheists",
+            "condition": "from_round_3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "The Hunger",
+      "description": "Each time a friendly Vampire unit uses a Fight ability, after all of its attacks have been resolved, Heal (X) that Vampire unit where X is the number of damage points allocated by those attacks.",
+      "timing": "passive",
+      "effect": {
+        "type": "self_heal",
+        "trigger": "after_fight_ability",
+        "heal": "damage_dealt",
+        "applies_to": "friendly_vampire_units"
+      }
+    }
+  ],
+  "regiment_abilities": [
+    {
+      "name": "Endless Legions",
+      "description": "You can set up a replacement unit with D6+4 models anywhere on the battlefield more than 6\" from all enemy units.",
+      "timing": "once_per_battle_your_movement_phase",
+      "declare": "Pick a friendly Deathrattle Skeletons unit that has been destroyed.",
+      "keywords": ["Core"],
+      "effect": {
+        "type": "summon_replacement",
+        "applies_to": "Deathrattle Skeletons",
+        "models": "D6+4",
+        "condition": "unit_destroyed"
+      }
+    },
+    {
+      "name": "Ruinous Chargers",
+      "description": "Inflict D3 mortal damage on each enemy unit it passed across during that Charge ability.",
+      "timing": "any_charge_phase",
+      "declare": "Pick your Blood Knights unit to use this ability if it charged this turn.",
+      "effect": {
+        "type": "mortal_damage",
+        "damage": "D3",
+        "applies_to": "Blood Knights",
+        "target": "each_enemy_unit_passed_across",
+        "condition": "charged_this_turn"
+      }
+    }
+  ],
+  "enhancements": [
+    {
+      "name": "Grave-Sand Shard",
+      "description": "Add 1 to each legion roll made for that unit.",
+      "timing": "once_per_battle_reaction_skeleton_legion_within_9_of_general",
+      "effect": {
+        "type": "roll_modifier",
+        "modifier": "legion_roll_bonus",
+        "value": 1,
+        "applies_to": "Deathrattle Skeletons"
+      }
+    },
+    {
+      "name": "Cloud of Bats",
+      "description": "Remove your general from the battlefield and set them up again anywhere on the battlefield more than 6\" from all enemy units.",
+      "timing": "once_per_battle_your_movement_phase",
+      "keywords": ["Core"],
+      "effect": {
+        "type": "teleport",
+        "applies_to": "general"
+      }
+    },
+    {
+      "name": "Aura of Night",
+      "description": "Ignore negative modifiers to save rolls for shooting attacks that target your general.",
+      "timing": "passive",
+      "effect": {
+        "type": "self_buff",
+        "modifier": "ignore_negative_save_modifiers",
+        "target_attack_type": "shooting",
+        "applies_to": "general"
+      }
+    },
+    {
+      "name": "Spirit Gale",
+      "description": "On a 7+, inflict 1 mortal damage on each enemy unit on the battlefield.",
+      "timing": "your_hero_phase",
+      "declare": "Make a casting roll of 2D6.",
+      "effect": {
+        "type": "mortal_damage",
+        "damage": 1,
+        "target": "all_enemy_units",
+        "roll_required": 7,
+        "roll_dice": "2D6"
+      }
+    }
+  ],
+  "units": [
+    {
+      "name": "Vampire Lord",
+      "role": "general",
+      "unit_count": 1,
+      "model_count": 1,
+      "keywords": ["Hero", "Wizard", "Infantry", "Vampire"],
+      "stats": {
+        "move": 6,
+        "health": 5,
+        "save": 3,
+        "ward": 6,
+        "control": 2
+      },
+      "weapons": [
+        {
+          "name": "Dynastic War-relic",
+          "type": "melee",
+          "attacks": "5",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Vile Transference",
+          "description": "Pick a visible enemy unit within 6\" of this unit to be the target, then make a casting roll of 2D6. On a 6+, roll a number of dice equal to the target's Health characteristic. For each 5+, inflict 1 mortal damage on the target and Heal (1) this unit.",
+          "timing": "your_hero_phase",
+          "declare": "Pick a visible enemy unit within 6\" of this unit to be the target, then make a casting roll of 2D6.",
+          "effect": {
+            "type": "mortal_damage_and_self_heal",
+            "cast_roll": "2D6",
+            "cast_required": 6,
+            "dice_pool": "target_health",
+            "success_on": 5,
+            "mortal_damage_per_success": 1,
+            "heal_per_success": 1,
+            "applies_to": "general"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blood Knights",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 5,
+      "keywords": ["Cavalry", "Vampire"],
+      "stats": {
+        "move": 10,
+        "health": 3,
+        "save": 3,
+        "ward": 6,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Templar Lance or Templar Blade",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 3,
+          "wound": 3,
+          "rend": 1,
+          "damage": "1",
+          "abilities": ["Charge (+1 Damage)"]
+        },
+        {
+          "name": "Nightmare's Hooves and Teeth",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 5,
+          "wound": 3,
+          "rend": 0,
+          "damage": "1",
+          "abilities": ["Companion"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Riders of Ruin",
+          "description": "Models in this unit can pass across enemy Infantry models as if this unit had Fly.",
+          "timing": "passive",
+          "effect": {
+            "type": "movement_rule",
+            "modifier": "treat_as_fly_over_infantry"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vargheists",
+      "role": "unit",
+      "unit_count": 1,
+      "model_count": 3,
+      "keywords": ["Infantry", "Vampire", "Fly"],
+      "stats": {
+        "move": 12,
+        "health": 4,
+        "save": 5,
+        "ward": 6,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Murderous Fangs and Talons",
+          "type": "melee",
+          "attacks": "3",
+          "hit": 4,
+          "wound": 3,
+          "rend": 1,
+          "damage": "2",
+          "abilities": ["Crit (2 Hits)"]
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "The Scent of Gore",
+          "description": "Add 1 to wound rolls for attacks made by this unit that target a damaged unit.",
+          "timing": "passive",
+          "effect": {
+            "type": "conditional_buff",
+            "modifier": "wound_bonus",
+            "value": 1,
+            "condition": "target_is_damaged"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deathrattle Skeletons",
+      "role": "unit",
+      "unit_count": 2,
+      "model_count": 10,
+      "keywords": ["Infantry"],
+      "stats": {
+        "move": 4,
+        "health": 1,
+        "save": 5,
+        "ward": 6,
+        "control": 1
+      },
+      "weapons": [
+        {
+          "name": "Ancient Weapon",
+          "type": "melee",
+          "attacks": "2",
+          "hit": 4,
+          "wound": 4,
+          "rend": 0,
+          "damage": "1",
+          "abilities": []
+        }
+      ],
+      "passive_abilities": [
+        {
+          "name": "Skeleton Legion",
+          "description": "For each slain model from this unit, make a legion roll of D6. For each 5+, return 1 slain model to this unit.",
+          "timing": "any_combat_phase",
+          "effect": {
+            "type": "return_models",
+            "roll_per_slain_model": "D6",
+            "success_on": 5,
+            "returns": 1,
+            "applies_to": "this_unit"
+          }
+        }
+      ]
+    }
+  ]
+}
