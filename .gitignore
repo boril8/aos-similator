@@ -1,0 +1,4 @@
+.DS_Store
+
+aos_sim.egg-info/
+**.pyc
