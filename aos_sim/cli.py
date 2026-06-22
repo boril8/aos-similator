@@ -8,7 +8,8 @@ from rich.panel import Panel
 from rich import box
 from typing import Optional
 
-from .loader import find_units
+from pathlib import Path
+from .loader import find_units, load_all_spearheads
 from .calculator import DamageCalculator
 
 app = typer.Typer(help="Age of Sigmar damage simulator", add_completion=False, no_args_is_help=True)
@@ -568,3 +569,119 @@ def distribution(
 
         console.print(table)
         console.print()
+
+
+# ── Markdown generator ────────────────────────────────────────────────────────
+
+_TIMING_LABELS = {
+    "passive":                                          "Passive",
+    "your_hero_phase":                                  "Your Hero Phase",
+    "once_per_battle_any_hero_phase":                   "Once Per Battle, Any Hero Phase",
+    "once_per_battle_round_start_of_battle_round":      "Start of Battle Round",
+    "once_per_turn_end_of_any_turn":                    "End of Any Turn",
+    "reaction_any_combat_phase":                        "Reaction: Any Combat Phase",
+    "reaction_shoot":                                   "Reaction: Shoot",
+    "any_combat_phase":                                 "Any Combat Phase",
+    "any_charge_phase":                                 "Any Charge Phase",
+    "passive_reaction_fight":                           "Passive (Reaction: Fight)",
+}
+
+
+def _fmt_timing(t: str) -> str:
+    return _TIMING_LABELS.get(t, t.replace("_", " ").title())
+
+
+def _spearhead_to_md(sp) -> str:
+    out: list[str] = []
+
+    out.append(f"# {sp.name}\n")
+    out.append(f"**Faction:** {sp.faction}\n")
+
+    def section(title):
+        out.append(f"\n## {title}\n")
+
+    def ability_block(entries, level=3):
+        prefix = "#" * level
+        for ab in entries:
+            timing = _fmt_timing(ab.get("timing", ""))
+            out.append(f"{prefix} {ab['name']}")
+            out.append(f"*{timing}*  ")
+            out.append(f"{ab.get('description', '')}\n")
+
+    if sp.battle_traits:
+        section("Battle Traits")
+        ability_block(sp.battle_traits)
+
+    if sp.regiment_abilities:
+        section("Regiment Abilities *(pick one only)*")
+        ability_block(sp.regiment_abilities)
+
+    if sp.enhancements:
+        section("Enhancements *(pick one only)*")
+        ability_block(sp.enhancements)
+
+    section("Units")
+    for unit in sp.units:
+        role = " *(General)*" if unit.role == "general" else ""
+        out.append(f"### {unit.name}{role}\n")
+
+        s = unit.stats
+        ward = f"{s.ward}+" if s.ward else "—"
+        models = f"{unit.model_count} model{'s' if unit.model_count > 1 else ''}"
+        out.append(f"**Keywords:** {', '.join(unit.keywords)}  ")
+        out.append(
+            f"**{models}** · Move {s.move}\" · Health {s.health} · "
+            f"Save {s.save}+ · Ward {ward} · Control {s.control}\n"
+        )
+
+        out.append("#### Weapons\n")
+        out.append("| Weapon | Type | Rng | Atk | Hit | Wnd | Rnd | Dmg | Abilities |")
+        out.append("|---|---|---|---|---|---|---|---|---|")
+        for w in unit.weapons:
+            rng       = f'{w.range}"' if w.range else "—"
+            rend      = f"-{w.rend}" if w.rend else "—"
+            abilities = ", ".join(w.abilities) if w.abilities else "—"
+            note      = f" *({w.note})*" if w.note else ""
+            out.append(
+                f"| {w.name}{note} | {w.type.title()} | {rng} | {w.attacks} "
+                f"| {w.hit}+ | {w.wound}+ | {rend} | {w.damage} | {abilities} |"
+            )
+        out.append("")
+
+        if unit.passive_abilities:
+            out.append("#### Abilities\n")
+            ability_block(unit.passive_abilities, level=5)
+
+        out.append("---\n")
+
+    return "\n".join(out)
+
+
+@app.command()
+def generate(
+    faction: Optional[str] = typer.Argument(None, help="Faction short name (omit for all)"),
+    spearhead: str = typer.Argument("", help="Spearhead short name (omit for all in faction)"),
+    out_dir: Path = typer.Option(Path("output"), "--dir", "-d", help="Output directory"),
+):
+    """Generate Markdown reference sheets from spearhead JSON data."""
+    all_sh    = load_all_spearheads()
+    faction_l = faction.lower() if faction else ""
+    name_l    = spearhead.lower()
+
+    targets = [
+        sh for sh in all_sh
+        if (not faction_l or sh.faction_short.lower() == faction_l)
+        and (not name_l or sh.short_name.lower() == name_l)
+    ]
+
+    if not targets:
+        msg = (f"faction '{faction}'" if faction else "any faction") + (f" / spearhead '{spearhead}'" if spearhead else "")
+        console.print(f"[red]No spearheads found for {msg}.[/red]")
+        raise typer.Exit(1)
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for sh in targets:
+        slug = f"{sh.faction_short}_{sh.short_name.lower()}" if sh.short_name else sh.faction_short
+        path = out_dir / f"{slug}.md"
+        path.write_text(_spearhead_to_md(sh), encoding="utf-8")
+        console.print(f"[green]Generated:[/green] {path}")
