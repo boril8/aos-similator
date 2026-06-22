@@ -70,8 +70,8 @@ def _collect_weapon_variants(unit, spearhead) -> dict:
     def _mod(weapon, **kw):
         return dc_replace(weapon, **kw)
 
-    def _append(wi, label, weapon, p_weight=1.0, **overrides):
-        out[wi].append((label, _mod(weapon, **overrides), p_weight))
+    def _append(wi, label, weapon, p_weight=1.0, exclusive_group=None, **overrides):
+        out[wi].append((label, _mod(weapon, **overrides), p_weight, exclusive_group))
 
     # ── Unit passive abilities ────────────────────────────────────────────────
     for ab in unit.passive_abilities:
@@ -145,21 +145,36 @@ def _collect_weapon_variants(unit, spearhead) -> dict:
                 continue
             if not _unit_in_scope(unit, effect.get("scope", "")):
                 continue
-            modifier = effect.get("modifier", "")
-            roll_req = effect.get("roll_required")
-            p_ok     = (7 - roll_req) / 6 if roll_req else 1.0
-            label    = f"[yellow]({ab['name']})[/yellow]"
+            modifier        = effect.get("modifier", "")
+            target_weapons  = effect.get("target_weapons", "")
+            roll_req        = effect.get("roll_required")
+            p_ok            = (7 - roll_req) / 6 if roll_req else 1.0
+            label           = f"[yellow]({ab['name']})[/yellow]"
+            exclusive_group = ab.get("exclusive_group")
+
+            # Combined multi-modifier effect (e.g. Song of the Hunt 3+ chords)
+            if "modifiers" in effect:
+                for wi, w in enumerate(unit.weapons):
+                    if not target_weapons or w.type == target_weapons:
+                        combined = w
+                        for m in effect["modifiers"]:
+                            if m["modifier"] == "hit_bonus":
+                                combined = _mod(combined, hit=max(2, combined.hit - m["value"]))
+                            elif m["modifier"] == "wound_bonus":
+                                combined = _mod(combined, wound=max(2, combined.wound - m["value"]))
+                        out[wi].append((label, combined, p_ok, exclusive_group))
+                continue
 
             if modifier == "hit_bonus":
                 bonus = effect["value"]
                 for wi, w in enumerate(unit.weapons):
-                    if w.type == "melee":
-                        _append(wi, label, w, p_ok, hit=max(2, w.hit - bonus))
+                    if not target_weapons or w.type == target_weapons:
+                        _append(wi, label, w, p_ok, exclusive_group=exclusive_group, hit=max(2, w.hit - bonus))
             elif modifier == "wound_bonus":
                 bonus = effect["value"]
                 for wi, w in enumerate(unit.weapons):
-                    if w.type == "melee":
-                        _append(wi, label, w, p_ok, wound=max(2, w.wound - bonus))
+                    if not target_weapons or w.type == target_weapons:
+                        _append(wi, label, w, p_ok, exclusive_group=exclusive_group, wound=max(2, w.wound - bonus))
 
         # Enhancements on the general that buff all friendly units
         for enh in spearhead.enhancements:
@@ -168,17 +183,18 @@ def _collect_weapon_variants(unit, spearhead) -> dict:
                 continue
             if not _unit_in_scope(unit, effect.get("scope", "")):
                 continue
-            modifier = effect.get("modifier", "")
-            label    = f"[yellow]({enh['name']})[/yellow]"
+            modifier       = effect.get("modifier", "")
+            target_weapons = effect.get("target_weapons", "")
+            label          = f"[yellow]({enh['name']})[/yellow]"
             if modifier == "hit_bonus":
                 bonus = effect["value"]
                 for wi, w in enumerate(unit.weapons):
-                    if w.type == "melee":
+                    if not target_weapons or w.type == target_weapons:
                         _append(wi, label, w, hit=max(2, w.hit - bonus))
             elif modifier == "wound_bonus":
                 bonus = effect["value"]
                 for wi, w in enumerate(unit.weapons):
-                    if w.type == "melee":
+                    if not target_weapons or w.type == target_weapons:
                         _append(wi, label, w, wound=max(2, w.wound - bonus))
 
     # ── Regiment abilities ────────────────────────────────────────────────────
@@ -188,20 +204,21 @@ def _collect_weapon_variants(unit, spearhead) -> dict:
             scope    = effect.get("scope", "")
             modifier = effect.get("modifier", "")
             if effect.get("type") == "friendly_buff" and scope == "friendly_non_hero_units" and modifier == "wound_bonus":
-                bonus = effect["value"]
-                label = f"[yellow]({ra['name']})[/yellow]"
+                bonus          = effect["value"]
+                target_weapons = effect.get("target_weapons", "melee")
+                label          = f"[yellow]({ra['name']})[/yellow]"
                 for wi, w in enumerate(unit.weapons):
-                    if w.type == "melee":
+                    if not target_weapons or w.type == target_weapons:
                         _append(wi, label, w, wound=max(2, w.wound - bonus))
 
     return out
 
 
 def _collect_weapon_conditionals(unit, spearhead, save_results, ward):
-    """Return {weapon_idx: [(label, [dmg_per_save])]} — wraps _collect_weapon_variants."""
+    """Return {weapon_idx: [(label, [dmg_per_save], exclusive_group)]}."""
     out = defaultdict(list)
     for wi, variant_list in _collect_weapon_variants(unit, spearhead).items():
-        for label, modified_weapon, p_weight in variant_list:
+        for label, modified_weapon, p_weight, exclusive_group in variant_list:
             dmg_ok = [
                 round(calc.weapon_damage(modified_weapon, unit.model_count, sv, ward).expected_damage, 3)
                 for sv, _ in _SAVES
@@ -209,7 +226,7 @@ def _collect_weapon_conditionals(unit, spearhead, save_results, ward):
             if p_weight < 1.0:
                 dmg_base = [save_results[si].weapons[wi].expected_damage for si in range(len(_SAVES))]
                 dmg_ok = [round(p_weight * b + (1 - p_weight) * n, 3) for b, n in zip(dmg_ok, dmg_base)]
-            out[wi].append((label, dmg_ok))
+            out[wi].append((label, dmg_ok, exclusive_group))
     return out
 
 
@@ -355,11 +372,28 @@ def damage(
                 table.add_row("[yellow](charging)[/yellow]", "", "", *charge_cells)
 
             # Per-weapon conditional ability rows
-            for cond_label, dmg_per_save in weapon_conditionals.get(wi, []):
+            for cond_label, dmg_per_save, _eg in weapon_conditionals.get(wi, []):
                 cond_cells = [f"[yellow]({v:.2f})[/yellow]" for v in dmg_per_save]
                 table.add_row(cond_label, "", "", *cond_cells)
 
-        # Total row
+        # ── Total rows ────────────────────────────────────────────────────────────
+        # Build best exclusive-group variant per weapon:
+        # {group_name: {wi: (rich_label, best_WeaponProfile)}}
+        variants = _collect_weapon_variants(unit, spearhead)
+        best_by_group: dict[str, dict[int, tuple[str, object]]] = defaultdict(dict)
+        for wi, variant_list in variants.items():
+            by_eg: dict[str, list] = defaultdict(list)
+            for label, weapon, p_weight, eg in variant_list:
+                if eg:
+                    by_eg[eg].append((label, weapon))
+            sv_mid = _SAVES[2][0]   # use save 4+ as tie-breaker
+            for eg, cands in by_eg.items():
+                best_label, best_wp = max(
+                    cands,
+                    key=lambda c: calc.weapon_damage(c[1], unit.model_count, sv_mid, ward).expected_damage,
+                )
+                best_by_group[eg][wi] = (best_label, best_wp)
+
         table.add_section()
         table.add_row(
             "[bold]Total[/bold]", "", "",
@@ -372,16 +406,53 @@ def damage(
                 *[f"[yellow]({cr.total:.2f})[/yellow]" for cr in charge_results],
             )
 
-        if weapon_conditionals:
-            all_buffs = list(col_totals)
-            for wi, cond_list in weapon_conditionals.items():
-                for _, dmg_per_save in cond_list:
-                    for si in range(len(_SAVES)):
-                        all_buffs[si] += dmg_per_save[si] - save_results[si].weapons[wi].expected_damage
-            table.add_row(
-                "[bold]Total [yellow](all buffs)[/yellow][/bold]", "", "",
-                *[f"[yellow]({t:.2f})[/yellow]" for t in all_buffs],
-            )
+        # Collect independent buff deltas: {label: {wi: [delta_per_save]}}
+        indep_by_label: dict[str, dict[int, list]] = defaultdict(dict)
+        for wi, cond_list in weapon_conditionals.items():
+            for label, dmg_per_save, eg in cond_list:
+                if eg is None and wi not in indep_by_label[label]:
+                    base_dmg = [save_results[si].weapons[wi].expected_damage for si in range(len(_SAVES))]
+                    indep_by_label[label][wi] = [dmg_per_save[si] - base_dmg[si] for si in range(len(_SAVES))]
+
+        # Buff dimensions: exclusive groups + independent buffs
+        # Each dim: (display_label, kind, data)
+        #   kind="excl" → data = {wi: (label, best_wp)}
+        #   kind="indep" → data = {wi: [delta_per_save]}
+        buff_dims = (
+            [(next(iter(wb.values()))[0], "excl", wb) for wb in best_by_group.values()] +
+            [(lbl, "indep", wd) for lbl, wd in indep_by_label.items()]
+        )
+
+        def _combo_totals(subset, is_charging=False):
+            """Exact for excl-group weapons; delta-based for indep buffs."""
+            totals = []
+            wi_override = {wi: wp for _, k, d in subset if k == "excl" for wi, (_, wp) in d.items()}
+            for si, (sv, _) in enumerate(_SAVES):
+                t = sum(
+                    calc.weapon_damage(wi_override.get(wi, w), unit.model_count, sv, ward, is_charging).expected_damage
+                    for wi, w in enumerate(unit.weapons)
+                )
+                for _, k, d in subset:
+                    if k == "indep":
+                        t += sum(deltas[si] for deltas in d.values())
+                totals.append(t)
+            return totals
+
+        from itertools import combinations as _combos
+        for r in range(1, len(buff_dims) + 1):
+            for subset in _combos(buff_dims, r):
+                combo_label = " + ".join(lbl for lbl, _, _ in subset)
+                totals = _combo_totals(subset, is_charging=False)
+                table.add_row(
+                    f"[bold]Total {combo_label}[/bold]", "", "",
+                    *[f"[yellow]({t:.2f})[/yellow]" for t in totals],
+                )
+                if charge_results:
+                    cg_totals = _combo_totals(subset, is_charging=True)
+                    table.add_row(
+                        f"[bold]Total {combo_label} [yellow]+ charging[/yellow][/bold]", "", "",
+                        *[f"[yellow]({t:.2f})[/yellow]" for t in cg_totals],
+                    )
 
         # Healing rows
         healing_rows = _collect_healing(unit, spearhead, save_results)
@@ -454,7 +525,7 @@ def distribution(
                 rows.append(("[yellow](charging)[/yellow]", "", "", charge_counts))
 
             # Conditional buff variants
-            for label, modified_weapon, p_weight in variants.get(wi, []):
+            for label, modified_weapon, p_weight, _eg in variants.get(wi, []):
                 buffed_counts = _sim_weapon(modified_weapon, unit.model_count, save, ward, charging, runs)
                 if p_weight < 1.0:
                     # Blend boosted and base distributions
