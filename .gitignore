@@ -1,4 +1,6 @@
 .DS_Store
 
 aos_sim.egg-info/
+aos_sim/__pycache__
+
 **.pyc

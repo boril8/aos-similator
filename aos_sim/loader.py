@@ -36,6 +36,7 @@ def load_spearhead(path: Path) -> Spearhead:
             ))
         units.append(Unit(
             name=u["name"],
+            short_name=u.get("short_name", ""),
             role=u.get("role", "unit"),
             unit_count=u.get("unit_count", 1),
             model_count=u.get("model_count", 1),
@@ -87,7 +88,11 @@ def find_units(faction_short: str, unit_name: str) -> list[tuple[Unit, Spearhead
             key = (spearhead.name, unit.name)
             if key in seen:
                 continue
-            if spearhead_match or name_lower in unit.name.lower():
+            unit_match = (
+                name_lower in unit.name.lower()
+                or (unit.short_name and unit.short_name.lower() == name_lower)
+            )
+            if spearhead_match or unit_match:
                 seen.add(key)
                 results.append((unit, spearhead))
 

@@ -29,6 +29,7 @@ class UnitStats:
 @dataclass
 class Unit:
     name: str
+    short_name: str                    # optional alias for lookup
     role: str                          # "general" | "unit"
     unit_count: int                    # number of this unit in the spearhead
     model_count: int                   # models per unit

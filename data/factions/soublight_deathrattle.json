@@ -119,6 +119,7 @@
   "units": [
     {
       "name": "Wight King",
+      "short_name": "king",
       "role": "general",
       "unit_count": 1,
       "model_count": 1,
@@ -161,6 +162,7 @@
     },
     {
       "name": "Barrow Guard",
+      "short_name": "guard",
       "role": "unit",
       "unit_count": 1,
       "model_count": 10,
@@ -200,6 +202,7 @@
     },
     {
       "name": "Barrow Knights",
+      "short_name": "knights",
       "role": "unit",
       "unit_count": 1,
       "model_count": 5,
@@ -248,6 +251,7 @@
     },
     {
       "name": "Deathrattle Skeletons",
+      "short_name": "skeletons",
       "role": "unit",
       "unit_count": 2,
       "model_count": 10,

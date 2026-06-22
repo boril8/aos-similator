@@ -112,6 +112,7 @@
   "units": [
     {
       "name": "Vampire Lord",
+      "short_name": "vampire",
       "role": "general",
       "unit_count": 1,
       "model_count": 1,
@@ -156,6 +157,7 @@
     },
     {
       "name": "Blood Knights",
+      "short_name": "knights",
       "role": "unit",
       "unit_count": 1,
       "model_count": 5,
@@ -203,6 +205,7 @@
     },
     {
       "name": "Vargheists",
+      "short_name": "vargheists",
       "role": "unit",
       "unit_count": 1,
       "model_count": 3,
@@ -242,6 +245,7 @@
     },
     {
       "name": "Deathrattle Skeletons",
+      "short_name": "skeletons",
       "role": "unit",
       "unit_count": 2,
       "model_count": 10,

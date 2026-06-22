@@ -131,6 +131,7 @@
   "units": [
     {
       "name": "Arch-Revenant",
+      "short_name": "revenant",
       "role": "general",
       "unit_count": 1,
       "model_count": 1,
@@ -186,8 +187,8 @@
           "effect": {
             "type": "friendly_buff",
             "modifiers": [
-              {"modifier": "hit_bonus", "value": 1},
-              {"modifier": "wound_bonus", "value": 1}
+              { "modifier": "hit_bonus", "value": 1 },
+              { "modifier": "wound_bonus", "value": 1 }
             ],
             "scope": "friendly_units",
             "condition": "within_9_of_quarry_and_have_3_chords"
@@ -197,6 +198,7 @@
     },
     {
       "name": "Gossamid Archers",
+      "short_name": "archers",
       "role": "unit",
       "unit_count": 1,
       "model_count": 5,
@@ -246,6 +248,7 @@
     },
     {
       "name": "Spiterider Lancers",
+      "short_name": "lancers",
       "role": "unit",
       "unit_count": 1,
       "model_count": 3,
@@ -296,6 +299,7 @@
     },
     {
       "name": "Revenant Seekers",
+      "short_name": "seekers",
       "role": "unit",
       "unit_count": 1,
       "model_count": 3,

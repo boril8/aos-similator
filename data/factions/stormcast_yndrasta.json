@@ -88,6 +88,7 @@
   "units": [
     {
       "name": "Yndrasta, the Celestial Spear",
+      "short_name": "general",
       "role": "general",
       "unit_count": 1,
       "model_count": 1,
@@ -139,6 +140,7 @@
     },
     {
       "name": "Knight-Vexillor",
+      "short_name": "knight",
       "role": "unit",
       "unit_count": 1,
       "model_count": 1,
@@ -177,6 +179,7 @@
     },
     {
       "name": "Annihilators",
+      "short_name": "annihilators",
       "role": "unit",
       "unit_count": 1,
       "model_count": 3,
@@ -215,6 +218,7 @@
     },
     {
       "name": "Vanquishers",
+      "short_name": "vanquishers",
       "role": "unit",
       "unit_count": 2,
       "model_count": 5,
@@ -255,6 +259,7 @@
     },
     {
       "name": "Stormstrike Chariot",
+      "short_name": "chariot",
       "role": "unit",
       "unit_count": 1,
       "model_count": 1,
